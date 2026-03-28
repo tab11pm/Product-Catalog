@@ -4,7 +4,7 @@ using System.Windows;
 using ProductCatalogApp.Models;
 using System.Windows.Controls;
 using System.Windows.Media;
-
+using ProductCatalogApp.Services;
 namespace ProductCatalogApp;
 
 /// <summary>
@@ -12,6 +12,11 @@ namespace ProductCatalogApp;
 /// </summary>
 public partial class MainWindow : Window
 {
+    /// <summary>
+/// Сервис для работы с файлом данных.
+/// </summary>
+private readonly JsonFileService _jsonFileService = new();
+
     /// <summary>
 /// Сбрасывает оформление поля ввода.
 /// </summary>
@@ -44,6 +49,7 @@ private void MarkInvalid(Control control, string message)
     {
         InitializeComponent();
         InitializeCategories();
+        LoadProducts();
         RefreshProductsList();
     }
 
@@ -81,6 +87,24 @@ private void MarkInvalid(Control control, string message)
         CategoryComboBox.SelectedItem = selectedProduct.Category;
         QuantityTextBox.Text = selectedProduct.Quantity.ToString();
     }
+
+/// <summary>
+/// Загружает товары из файла.
+/// </summary>
+private void LoadProducts()
+{
+    List<Product> loadedProducts = _jsonFileService.Load();
+    _products = new ObservableCollection<Product>(loadedProducts);
+}
+
+/// <summary>
+/// Сохраняет товары в файл перед закрытием окна.
+/// </summary>
+protected override void OnClosed(EventArgs e)
+{
+    _jsonFileService.Save(_products);
+    base.OnClosed(e);
+}
 
     /// <summary>
     /// Добавляет новый товар.
