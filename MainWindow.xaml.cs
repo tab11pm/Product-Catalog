@@ -14,6 +14,14 @@ namespace ProductCatalogApp;
 /// </summary>
 public partial class MainWindow : Window
 {
+    /// <summary>
+    /// Переводит форму в режим создания нового товара.
+    /// </summary>
+    private void NewButton_Click(object sender, RoutedEventArgs e)
+    {
+        ProductsListBox.SelectedItem = null;
+        ClearForm();
+    }
     private void NameTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
 {
     if (_isUpdatingForm || ProductsListBox.SelectedItem is not Product selectedProduct)
@@ -165,6 +173,7 @@ private void MarkInvalid(Control control, string message)
     {
         if (ProductsListBox.SelectedItem is not Product selectedProduct)
         {
+            ClearForm();
             return;
         }
 
@@ -177,6 +186,7 @@ private void MarkInvalid(Control control, string message)
 
         _isUpdatingForm = false;
     }
+
     /// <summary>
     /// Загружает товары из файла.
     /// </summary>
@@ -205,6 +215,17 @@ private void MarkInvalid(Control control, string message)
     /// </summary>
     private void AddButton_Click(object sender, RoutedEventArgs e)
     {
+        if (ProductsListBox.SelectedItem is not null)
+        {
+            MessageBox.Show(
+                "Чтобы добавить новый товар, сначала нажмите кнопку \"Новый\".",
+                "Информация",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
+            return;
+        }
+
         if (!ValidateInput(out int quantity))
         {
             return;
@@ -221,8 +242,6 @@ private void MarkInvalid(Control control, string message)
         _products.Add(product);
         SubscribeToProduct(product);
         RefreshProductsList();
-
-        ProductsListBox.SelectedItem = null;
         ClearForm();
     }
 
