@@ -15,6 +15,30 @@ namespace ProductCatalogApp;
 public partial class MainWindow : Window
 {
     /// <summary>
+    /// Проверяет, существует ли уже товар с такими же названием, производителем и категорией.
+    /// </summary>
+    /// <param name="name">Название товара.</param>
+    /// <param name="manufacturer">Производитель.</param>
+    /// <param name="category">Категория.</param>
+    /// <param name="ignoredProduct">
+    /// Товар, который нужно игнорировать при проверке.
+    /// Используется при редактировании существующего товара.
+    /// </param>
+    /// <returns>True, если дубликат найден, иначе false.</returns>
+    private bool IsDuplicateProduct(
+        string name,
+        string manufacturer,
+        ProductCategory category,
+        Product? ignoredProduct = null)
+    {
+        return _products.Any(product =>
+            !ReferenceEquals(product, ignoredProduct) &&
+            string.Equals(product.Name.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(product.Manufacturer.Trim(), manufacturer.Trim(), StringComparison.OrdinalIgnoreCase) &&
+            product.Category == category);
+    }
+
+    /// <summary>
     /// Переводит форму в режим создания нового товара.
     /// </summary>
     private void NewButton_Click(object sender, RoutedEventArgs e)
@@ -231,17 +255,38 @@ private void MarkInvalid(Control control, string message)
             return;
         }
 
+        string name = NameTextBox.Text.Trim();
+        string manufacturer = ManufacturerTextBox.Text.Trim();
+        ProductCategory category = (ProductCategory)CategoryComboBox.SelectedItem!;
+
+        if (IsDuplicateProduct(name, manufacturer, category))
+        {
+            MarkInvalid(NameTextBox, "Такой товар уже существует.");
+            MarkInvalid(ManufacturerTextBox, "Такой товар уже существует.");
+            MarkInvalid(CategoryComboBox, "Такой товар уже существует.");
+
+            MessageBox.Show(
+                "Товар с таким названием, производителем и категорией уже существует.",
+                "Ошибка",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
         Product product = new()
         {
-            Name = NameTextBox.Text.Trim(),
-            Manufacturer = ManufacturerTextBox.Text.Trim(),
-            Category = (ProductCategory)CategoryComboBox.SelectedItem!,
+            Name = name,
+            Manufacturer = manufacturer,
+            Category = category,
             Quantity = quantity
         };
 
         _products.Add(product);
         SubscribeToProduct(product);
         RefreshProductsList();
+
+        ProductsListBox.SelectedItem = null;
         ClearForm();
     }
 
@@ -252,7 +297,12 @@ private void MarkInvalid(Control control, string message)
     {
         if (ProductsListBox.SelectedItem is not Product selectedProduct)
         {
-            MessageBox.Show("Сначала выберите товар.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(
+                "Сначала выберите товар для редактирования.",
+                "Ошибка",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
             return;
         }
 
@@ -261,17 +311,31 @@ private void MarkInvalid(Control control, string message)
             return;
         }
 
-        selectedProduct.Name = NameTextBox.Text.Trim();
-        selectedProduct.Manufacturer = ManufacturerTextBox.Text.Trim();
-        selectedProduct.Category = (ProductCategory)CategoryComboBox.SelectedItem!;
+        string name = NameTextBox.Text.Trim();
+        string manufacturer = ManufacturerTextBox.Text.Trim();
+        ProductCategory category = (ProductCategory)CategoryComboBox.SelectedItem!;
+
+        if (IsDuplicateProduct(name, manufacturer, category, selectedProduct))
+        {
+            MarkInvalid(NameTextBox, "Такой товар уже существует.");
+            MarkInvalid(ManufacturerTextBox, "Такой товар уже существует.");
+            MarkInvalid(CategoryComboBox, "Такой товар уже существует.");
+
+            MessageBox.Show(
+                "Нельзя сохранить изменения, потому что такой товар уже существует.",
+                "Ошибка",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+
+            return;
+        }
+
+        selectedProduct.Name = name;
+        selectedProduct.Manufacturer = manufacturer;
+        selectedProduct.Category = category;
         selectedProduct.Quantity = quantity;
 
-        RefreshProductsList();
-        ProductsListBox.SelectedItem = _products.FirstOrDefault(product =>
-            product.Name == selectedProduct.Name &&
-            product.Manufacturer == selectedProduct.Manufacturer &&
-            product.Quantity == selectedProduct.Quantity &&
-            product.Category == selectedProduct.Category);
+        _productsView?.Refresh();
     }
 
     /// <summary>
