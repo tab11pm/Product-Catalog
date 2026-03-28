@@ -66,3 +66,5 @@ coverage/
 
 # Visual Studio Code workspace settings
 *.code-workspace
+
+products.json
