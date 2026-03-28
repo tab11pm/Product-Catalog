@@ -1,32 +1,9 @@
-﻿// using System.Text;
-// using System.Windows;
-// using System.Windows.Controls;
-// using System.Windows.Data;
-// using System.Windows.Documents;
-// using System.Windows.Input;
-// using System.Windows.Media;
-// using System.Windows.Media.Imaging;
-// using System.Windows.Navigation;
-// using System.Windows.Shapes;
-
-// namespace ProductCatalogApp;
-
-// /// <summary>
-// /// Interaction logic for MainWindow.xaml
-// /// </summary>
-// public partial class MainWindow : Window
-// {
-//     public MainWindow()
-//     {
-//         InitializeComponent();
-//     }
-// }
-
-
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using ProductCatalogApp.Models;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace ProductCatalogApp;
 
@@ -35,6 +12,26 @@ namespace ProductCatalogApp;
 /// </summary>
 public partial class MainWindow : Window
 {
+    /// <summary>
+/// Сбрасывает оформление поля ввода.
+/// </summary>
+private void ResetValidation(Control control)
+{
+    control.ClearValue(BackgroundProperty);
+    control.ClearValue(BorderBrushProperty);
+    control.ToolTip = null;
+}
+
+/// <summary>
+/// Отмечает поле как ошибочное.
+/// </summary>
+private void MarkInvalid(Control control, string message)
+{
+    control.Background = Brushes.MistyRose;
+    control.BorderBrush = Brushes.Red;
+    control.ToolTip = message;
+}
+
     /// <summary>
     /// Коллекция товаров.
     /// </summary>
@@ -106,6 +103,7 @@ public partial class MainWindow : Window
     _products.Add(product);
     RefreshProductsList();
     ProductsListBox.SelectedItem = product;
+    ClearForm();
 }
 
     /// <summary>
@@ -156,45 +154,64 @@ public partial class MainWindow : Window
     /// <summary>
     /// Проверяет корректность введённых данных.
     /// </summary>
-    private bool ValidateInput(out int quantity)
+    /// <summary>
+/// Проверяет корректность введённых данных.
+/// </summary>
+private bool ValidateInput(out int quantity)
+{
+    quantity = 0;
+
+    ResetValidation(NameTextBox);
+    ResetValidation(ManufacturerTextBox);
+    ResetValidation(CategoryComboBox);
+    ResetValidation(QuantityTextBox);
+
+    bool isValid = true;
+
+    string name = NameTextBox.Text.Trim();
+    string manufacturer = ManufacturerTextBox.Text.Trim();
+
+    if (string.IsNullOrWhiteSpace(name))
     {
-        quantity = 0;
-
-        string name = NameTextBox.Text.Trim();
-        string manufacturer = ManufacturerTextBox.Text.Trim();
-
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            MessageBox.Show("Название товара не должно быть пустым.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return false;
-        }
-
-        if (name.Length > 100)
-        {
-            MessageBox.Show("Название товара не должно превышать 100 символов.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(manufacturer))
-        {
-            MessageBox.Show("Производитель не должен быть пустым.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return false;
-        }
-
-        if (manufacturer.Length > 100)
-        {
-            MessageBox.Show("Производитель не должен превышать 100 символов.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return false;
-        }
-
-        if (!int.TryParse(QuantityTextBox.Text.Trim(), out quantity) || quantity < 0)
-        {
-            MessageBox.Show("Количество товара должно быть неотрицательным целым числом.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return false;
-        }
-
-        return true;
+        MarkInvalid(NameTextBox, "Название товара не должно быть пустым.");
+        isValid = false;
     }
+    else if (name.Length > 100)
+    {
+        MarkInvalid(NameTextBox, "Название товара не должно превышать 100 символов.");
+        isValid = false;
+    }
+
+    if (string.IsNullOrWhiteSpace(manufacturer))
+    {
+        MarkInvalid(ManufacturerTextBox, "Производитель не должен быть пустым.");
+        isValid = false;
+    }
+    else if (manufacturer.Length > 100)
+    {
+        MarkInvalid(ManufacturerTextBox, "Производитель не должен превышать 100 символов.");
+        isValid = false;
+    }
+
+    if (CategoryComboBox.SelectedItem is null)
+    {
+        MarkInvalid(CategoryComboBox, "Выберите категорию товара.");
+        isValid = false;
+    }
+
+    if (!int.TryParse(QuantityTextBox.Text.Trim(), out quantity))
+    {
+        MarkInvalid(QuantityTextBox, "Количество должно быть целым числом.");
+        isValid = false;
+    }
+    else if (quantity < 0)
+    {
+        MarkInvalid(QuantityTextBox, "Количество товара не может быть отрицательным.");
+        isValid = false;
+    }
+
+    return isValid;
+}
 
     /// <summary>
     /// Очищает форму редактирования.
@@ -205,5 +222,10 @@ public partial class MainWindow : Window
         ManufacturerTextBox.Clear();
         QuantityTextBox.Clear();
         CategoryComboBox.SelectedIndex = 0;
+
+        ResetValidation(NameTextBox);
+        ResetValidation(ManufacturerTextBox);
+        ResetValidation(CategoryComboBox);
+        ResetValidation(QuantityTextBox);
     }
 }
