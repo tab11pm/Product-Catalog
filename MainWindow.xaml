@@ -17,17 +17,34 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <GroupBox Header="Товары" Grid.Column="0" Margin="0,0,10,10">
+        <StackPanel Grid.Row="0"
+                    Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    Margin="0,0,0,10"
+                    VerticalAlignment="Center">
+            <TextBlock VerticalAlignment="Center"
+                    Margin="0,0,10,0">
+                Search:
+            </TextBlock>
+
+            <TextBox x:Name="SearchTextBox"
+                    Width="250"
+                    Height="26"
+                    TextChanged="SearchTextBox_TextChanged"/>
+        </StackPanel>
+
+        <GroupBox Header="Товары" Grid.Row="1" Grid.Column="0" Margin="0,0,10,10">
             <ListBox x:Name="ProductsListBox"
                      DisplayMemberPath="DisplayName"
                      SelectionChanged="ProductsListBox_SelectionChanged"/>
         </GroupBox>
 
-        <GroupBox Header="Информация о товаре" Grid.Column="1" Margin="0,0,0,10">
+        <GroupBox Header="Информация о товаре" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
             <Grid Margin="10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -64,7 +81,7 @@
             </Grid>
         </GroupBox>
 
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="2"
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="2"
                     Orientation="Horizontal"
                     HorizontalAlignment="Left">
             <Button x:Name="NewButton"
