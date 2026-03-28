@@ -68,3 +68,5 @@ coverage/
 *.code-workspace
 
 products.json
+
+Installer/Output
