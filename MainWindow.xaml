@@ -29,7 +29,7 @@
                     VerticalAlignment="Center">
             <TextBlock VerticalAlignment="Center"
                     Margin="0,0,10,0">
-                Search:
+                Поиск:
             </TextBlock>
 
             <TextBox x:Name="SearchTextBox"
