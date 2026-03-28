@@ -45,22 +45,22 @@
                 <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center">
                     Название товара:
                 </TextBlock>
-                <TextBox x:Name="NameTextBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10"/>
+                <TextBox x:Name="NameTextBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10" TextChanged="NameTextBox_TextChanged"/>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center">
                     Производитель:
                 </TextBlock>
-                <TextBox x:Name="ManufacturerTextBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10"/>
+                <TextBox x:Name="ManufacturerTextBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" TextChanged="ManufacturerTextBox_TextChanged"/>
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center">
                     Категория:
                 </TextBlock>
-                <ComboBox x:Name="CategoryComboBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,10"/>
+                <ComboBox x:Name="CategoryComboBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,10"  SelectionChanged="CategoryComboBox_SelectionChanged"/>
 
                 <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center">
                     Количество на складе:
                 </TextBlock>
-                <TextBox x:Name="QuantityTextBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,10"/>
+                <TextBox x:Name="QuantityTextBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,10" TextChanged="QuantityTextBox_TextChanged"/>
             </Grid>
         </GroupBox>
 
@@ -75,13 +75,13 @@
                 Добавить
             </Button>
 
-            <Button x:Name="SaveButton"
+            <!-- <Button x:Name="SaveButton"
                     Width="170"
                     Height="30"
                     Margin="0,0,10,0"
                     Click="SaveButton_Click">
                 Сохранить изменения
-            </Button>
+            </Button> -->
 
             <Button x:Name="DeleteButton"
                     Width="120"
