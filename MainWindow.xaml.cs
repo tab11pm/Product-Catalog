@@ -15,6 +15,50 @@ namespace ProductCatalogApp;
 public partial class MainWindow : Window
 {
     /// <summary>
+    /// Обрабатывает изменение текста поиска.
+    /// </summary>
+    private void SearchTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        _productsView?.Refresh();
+    }
+    
+    /// <summary>
+    /// Определяет, должен ли товар отображаться в списке с учётом поиска.
+    /// </summary>
+    /// <param name="obj">Проверяемый объект.</param>
+    /// <returns>True, если товар подходит под поиск, иначе false.</returns>
+    private bool FilterProducts(object obj)
+    {
+        if (obj is not Product product)
+        {
+            return false;
+        }
+
+        string searchText = SearchTextBox?.Text?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            return true;
+        }
+
+        return product.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || product.Manufacturer.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+            || product.Category.ToString().Contains(searchText, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Обновляет доступность кнопок в зависимости от режима формы.
+    /// </summary>
+    private void UpdateButtonsState()
+    {
+        bool isProductSelected = ProductsListBox.SelectedItem is Product;
+
+        AddButton.IsEnabled = !isProductSelected;
+        NewButton.IsEnabled = isProductSelected;
+        // SaveButton.IsEnabled = isProductSelected;
+        DeleteButton.IsEnabled = isProductSelected;
+    }
+    /// <summary>
     /// Проверяет, существует ли уже товар с такими же названием, производителем и категорией.
     /// </summary>
     /// <param name="name">Название товара.</param>
@@ -45,6 +89,7 @@ public partial class MainWindow : Window
     {
         ProductsListBox.SelectedItem = null;
         ClearForm();
+        UpdateButtonsState();
     }
     private void NameTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
 {
@@ -185,7 +230,10 @@ private void MarkInvalid(Control control, string message)
         _productsView = CollectionViewSource.GetDefaultView(_products);
 
         _productsView.SortDescriptions.Clear();
-        _productsView.SortDescriptions.Add(new SortDescription(nameof(Product.Name), ListSortDirection.Ascending));
+        _productsView.SortDescriptions.Add(
+            new SortDescription(nameof(Product.Name), ListSortDirection.Ascending));
+
+        _productsView.Filter = FilterProducts;
 
         ProductsListBox.ItemsSource = _productsView;
     }
@@ -198,6 +246,7 @@ private void MarkInvalid(Control control, string message)
         if (ProductsListBox.SelectedItem is not Product selectedProduct)
         {
             ClearForm();
+            UpdateButtonsState();
             return;
         }
 
@@ -209,6 +258,8 @@ private void MarkInvalid(Control control, string message)
         QuantityTextBox.Text = selectedProduct.Quantity.ToString();
 
         _isUpdatingForm = false;
+
+        UpdateButtonsState();
     }
 
     /// <summary>
@@ -288,6 +339,7 @@ private void MarkInvalid(Control control, string message)
 
         ProductsListBox.SelectedItem = null;
         ClearForm();
+        UpdateButtonsState();
     }
 
     /// <summary>
@@ -353,6 +405,7 @@ private void MarkInvalid(Control control, string message)
         UnsubscribeFromProduct(selectedProduct);
         RefreshProductsList();
         ClearForm();
+        UpdateButtonsState();
     }
 
     /// <summary>
